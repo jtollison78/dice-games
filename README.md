@@ -18,10 +18,6 @@ Optimal Victory Point Stategy averages: 2.2357416
 
 Optimal Attack (or other singlton) strategy average: 2.5968335
 
-(fill-dice) is run 1386 times
-
-(rerolls) is run 924 times
-
 From here, the next step is to build these functions into a full min-max game tree for a HU game, taking position(in-tokyo?) into account. This will produce a better feel for how long a game should run, but my suspicion is that games are short enough that cards aren't really meant to be a good strategy outside of opportunistic use. Instead, the focus is on nicely balanced design centered on the dice rolls.
 
 Alternatively, you may find that there are other interesting games to use this technique with, such as Zombie Dice.
