@@ -15,7 +15,7 @@
 
 (defn average [v] (/ (reduce + v) (count v)) ) ;to be used as "combineby"
 
-(def dice-choices (take 63 (combo/subsets (range 6)))) ;to be used as the "deck"
+(def dice-choices (combo/subsets (range 6))) ;to be used as the "deck"
 
 (defn score-vp [[k v]] 
 	(if (<= k 2)
@@ -31,15 +31,22 @@
 ;	so building this "internal" table boosts performance (vs just using (combo/selections) or nested dotimes?)
 ;(v = vector of dice, rrs = # rerolls)
 (def fill-dice (memoize (fn [v rrs]
-	(doseqfor average ;(partial reduce +)  ;**average/max between choices!!
-		(range 6)
-		#(let [roll (vec (sort (conj v %)))] ;**may want to -memo (sort) ]
-			(cond	(and (= (count roll) 6) (zero? rrs))
-					(reduce + (map score-vp (frequencies roll))) ;(score)
-				(= (count roll) 6)
-					(rerolls roll (dec rrs))
-				:else 
-					(fill-dice roll rrs)) ) )) ) )
+                          ;**ugh, repeating this whole structure feels wrong... (just eat the extra memo'd calls?? that also seems wrong)
+                          (cond (and (= (count v) 6) (zero? rrs))  ;need to be able to reroll none, but not call back memo'd fn everytime = check both here and in (doseqfor)
+                                  (reduce + (map score-vp (frequencies v))) ;(score)
+                                (= (count v) 6)
+                                  (rerolls v (dec rrs))
+                                :else 
+                                 
+                                (doseqfor average ;(partial reduce +)  ;**average/max between choices!!
+		                               (range 6)
+		                               #(let [roll (vec (sort (conj v %)))] ;**may want to -memo (sort) ]
+			                               (cond	(and (= (count roll) 6) (zero? rrs))
+					                               (reduce + (map score-claws (frequencies roll))) ;(score)
+				                               (= (count roll) 6)
+					                               (rerolls roll (dec rrs))
+				                               :else 
+					                               (fill-dice roll rrs)) ) )) ) ))
 
 
 (def rerolls (memoize (fn [v rrs]

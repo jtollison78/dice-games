@@ -10,13 +10,13 @@ To this end, I first wanted to find exact values for the dice rolls that drive t
 
 I didn't use simulation to find these expected values. I found exact values, using (memoize), a pre packaged clojure function to build lookup tables on the fly. The benefit of not using simulations, and instead, exploring all routes, is that you can be sure you're finding the best strategy, not just guessing which path to take and simulating to find the outcome of that guessed-at strategy.
 
-Note that I have 2 mutually recursive functions building the lookup tables, and that one of these functions calls itself to build out individual rolls, even though the roll would generally occur at once. This is helpful when you are rerolling varying numbers of dice where the new rolls become a simple lookup. If you remove the memoization from the first function, the program's run time increases approximately 5 order of magnitude, from .2s to 5.9 hrs!!
+Note that I have 2 mutually recursive functions building the lookup tables, and that one of these functions calls itself to build out individual rolls, even though the roll would generally occur at once. This is helpful when you are rerolling varying numbers of dice where the new rolls become a simple lookup. If you remove the memoization from the first function, the program's run time increases approximately 5 orders of magnitude.
 
 If you run the code above, you will find that:
 
-Optimal Victory Point Stategy averages: 2.2267575
+Optimal Victory Point Stategy averages: 2.2357416
 
-Optimal Attack (or other singlton) strategy average: 2.5270996
+Optimal Attack (or other singlton) strategy average: 2.5968335
 
 (fill-dice) is run 1386 times
 
