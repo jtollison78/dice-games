@@ -98,28 +98,18 @@
 
 
 ;OK... so... 
-(defn print-vp-strat-2rr []
-  ;1st reroll
+(defn print-vp-strat [rerolls-left]
   (reduce and1 (map 
     #(println (map inc %) " - " 
               ;(map inc (first (rerolls % 2))) " - "  ;uncomment this if you want the positions to hold and not just the actual dice
-              (map inc (map % (first (rerolls % 2)))) " - "
-              (float (second (rerolls % 2)) ) ) 
+              (map inc (map % (first (rerolls % (dec rerolls-left))))) " - "
+              (float (second (rerolls % (dec rerolls-left))) ) ) 
        (map fill-w-5s VP-selections))
           )
   )
 
-;**so... 
-(defn print-vp-strat-1rr []
-  ;second reroll left
-  (reduce and1 (map 
-                 #(println (map inc %) " - " 
-                           ;(map inc (first (rerolls % 1))) " - "  ;uncomment this if you want the positions to hold rather than the actual dice
-                           (map inc (map % (first (rerolls % 1)))) " - "
-                           (float (second (rerolls % 1)) ) ) 
-                    (map fill-w-5s VP-selections))
-          )
-  )
+;(print-vp-strat 2)
+;(print-vp-strat 1)
 
 ;-----
 ;AND sims to check
