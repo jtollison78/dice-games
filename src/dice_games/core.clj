@@ -35,25 +35,26 @@
                           (cond (and (= (count v) 6) (zero? rrs))  ;need to be able to reroll none, but not call back memo'd fn everytime = check both here and in (doseqfor)
                                   (reduce + (map score-vp (frequencies v))) ;(score)
                                 (= (count v) 6)
-                                  (rerolls v (dec rrs))
+                                  (second (rerolls v (dec rrs)))
                                 :else 
                                  
                                 (doseqfor average ;(partial reduce +)  ;**average/max between choices!!
 		                               (range 6)
 		                               #(let [roll (vec (sort (conj v %)))] ;**may want to -memo (sort) ]
 			                               (cond	(and (= (count roll) 6) (zero? rrs))
-					                               (reduce + (map score-claws (frequencies roll))) ;(score)
+					                               (reduce + (map score-vp (frequencies roll))) ;(score)
 				                               (= (count roll) 6)
-					                               (rerolls roll (dec rrs))
+					                               (second (rerolls roll (dec rrs)))
 				                               :else 
 					                               (fill-dice roll rrs)) ) )) ) ))
 
 
 (def rerolls (memoize (fn [v rrs]
-	(doseqfor (partial reduce max)  ;;(reduce max (map second %)) ?? if we're packaging a strat into vec ??
+	(doseqfor (comp last (partial sort-by second) ) ;(partial reduce max)  ;;(reduce max (map second %)) ?? if we're packaging a strat into vec ??
 		dice-choices
 		#(let [roll (mapv v %)]
-			(fill-dice roll rrs) ))) ) )  ;;[% (fill-dice roll rrs)] ;packing the choice of dice in a vec to return
+			[% (fill-dice roll rrs)] 
+   ))) ) )  ;;[% (fill-dice roll rrs)] ;packing the choice of dice in a vec to return
 
 
 
@@ -79,7 +80,49 @@
 
 
 ;-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
-;Zombie dice anyone?
+;Once you've run the -main program to get the game's value, you can get the VP reroll strategy charts by doing the following
+
+;all possible combinations of ways to roll VPs
+(def VP-selections 
+  (map vec 
+       (apply concat 
+              (map #(clojure.math.combinatorics/combinations [0 0 0 0 0 0 1 1 1 1 1 1 2 2 2 2 2 2] %) 
+                   (reverse (range 7))
+                   ))))
+
+;pad rolls with non-vp's so we can look things up by calling rerolls
+(defn fill-w-5s [r]
+  (vec (concat r (repeat (- 6 (count r)) 5)) ))
+
+(defn and1 [a b] (and a b)) ;helper to supress nil's returned by print (there has to be a better way, but this is what came to mind)
+
+
+;OK... so... 
+(defn print-vp-strat-2rr []
+  ;1st reroll
+  (reduce and1 (map 
+    #(println (map inc %) " - " 
+              ;(map inc (first (rerolls % 2))) " - "  ;uncomment this if you want the positions to hold and not just the actual dice
+              (map inc (map % (first (rerolls % 2)))) " - "
+              (float (second (rerolls % 2)) ) ) 
+       (map fill-w-5s VP-selections))
+          )
+  )
+
+;**so... 
+(defn print-vp-strat-1rr []
+  ;second reroll left
+  (reduce and1 (map 
+                 #(println (map inc %) " - " 
+                           ;(map inc (first (rerolls % 1))) " - "  ;uncomment this if you want the positions to hold rather than the actual dice
+                           (map inc (map % (first (rerolls % 1)))) " - "
+                           (float (second (rerolls % 1)) ) ) 
+                    (map fill-w-5s VP-selections))
+          )
+  )
+
+;-----
+;AND sims to check
 
 
 
